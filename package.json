@@ -1,0 +1,11 @@
+{
+  "name": "y",
+  "version": "y",
+  "main": "app.js",
+  "repository": "git@github.com:konstantywrona/node-images.git",
+  "author": "Konstanty Wrona <koswro@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jimp": "0.6.4"
+  }
+}
