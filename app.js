@@ -4,16 +4,21 @@ const fs = require('fs');
 const existsSync = require('node:fs').existsSync;
 
 const addTextWatermarkToImage = async function (inputFile, outputFile, text) {
-  const image = await Jimp.read(inputFile);
-  const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
-  const textData = {
-    text,
-    alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-    alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
-  };
-
-  image.print(font, 0, 0, textData, image.getWidth(), image.getHeight());
-  await image.quality(100).writeAsync(outputFile);
+  try {
+    const image = await Jimp.read(inputFile);
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+    const textData = {
+      text,
+      alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+      alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
+    };
+    image.print(font, 0, 0, textData, image.getWidth(), image.getHeight());
+    await image.quality(100).writeAsync(outputFile);
+    console.log('Your file was created.');
+    startAgain();
+  } catch (error) {
+    console.log('Something went wrong... Try again!');
+  }
 };
 
 const addImageWatermarkToImage = async function (
@@ -21,16 +26,22 @@ const addImageWatermarkToImage = async function (
   outputFile,
   watermarkFile
 ) {
-  const image = await Jimp.read(inputFile);
-  const watermark = await Jimp.read(watermarkFile);
-  const x = image.getWidth() / 2 - watermark.getWidth() / 2;
-  const y = image.getHeight() / 2 - watermark.getHeight() / 2;
+  try {
+    const image = await Jimp.read(inputFile);
+    const watermark = await Jimp.read(watermarkFile);
+    const x = image.getWidth() / 2 - watermark.getWidth() / 2;
+    const y = image.getHeight() / 2 - watermark.getHeight() / 2;
 
-  image.composite(watermark, x, y, {
-    mode: Jimp.BLEND_SOURCE_OVER,
-    opacitySource: 0.5,
-  });
-  await image.quality(100).writeAsync(outputFile);
+    image.composite(watermark, x, y, {
+      mode: Jimp.BLEND_SOURCE_OVER,
+      opacitySource: 0.5,
+    });
+    await image.quality(100).writeAsync(outputFile);
+    console.log('Your file was created.');
+    startAgain();
+  } catch (error) {
+    console.log('Something went wrong... Try again!');
+  }
 };
 
 const prepareOutputFilename = (filename) => {
@@ -109,6 +120,22 @@ const startApp = async () => {
       './img/' + options.watermarkImage
     );
   }
+};
+
+const startAgain = async () => {
+  const startAgain = await inquirer.prompt([
+    {
+      name: 'startAgain',
+      message: 'Do You want to start again?',
+      type: 'confirm',
+    },
+  ]);
+
+  // if answer is no, quit the app
+  if (!startAgain.startAgain) {
+    console.log('Thank you for using my app!');
+    process.exit();
+  } else startApp();
 };
 
 startApp();
